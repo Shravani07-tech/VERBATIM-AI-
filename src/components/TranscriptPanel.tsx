@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Send, Radio, Sparkles, AlertCircle } from 'lucide-react';
+import { Mic, MicOff, Send, Radio, Sparkles, Terminal } from 'lucide-react';
 import { TranscriptSegment } from '@/types';
 
 interface TranscriptPanelProps {
@@ -35,86 +35,94 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
   const handleSubmitManual = (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualInput.trim()) return;
-    onAddTranscriptSegment(manualInput.trim(), 'USER (MANUAL)');
+    onAddTranscriptSegment(manualInput.trim(), 'USER');
     setManualInput('');
   };
 
   return (
-    <div className="flex flex-col h-full glass-panel rounded-2xl border border-slate-800/80 overflow-hidden shadow-2xl">
+    <div className="flex flex-col h-full saas-card rounded-2xl overflow-hidden shadow-xl">
       {/* Panel Header */}
-      <div className="px-5 py-4 border-b border-slate-800/80 bg-slate-950/60 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-slate-900 bg-slate-950/20 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-lg bg-cyan-950/70 border border-cyan-800/50 text-cyan-400">
+          <div className="p-1.5 rounded bg-cyan-950/20 border border-cyan-800/10 text-cyan-400">
             <Radio className={`w-4 h-4 ${isLive ? 'animate-pulse' : ''}`} />
           </div>
           <div>
-            <h2 className="font-semibold text-sm text-slate-200 tracking-wide">Live Conversation Stream</h2>
-            <p className="text-xs text-slate-400">Real-time speech transcription & claim highlights</p>
+            <h3 className="font-bold text-sm text-slate-200 font-sans">Live Conversation</h3>
+            <p className="text-[10px] text-slate-500 font-medium">Real-time transcript and claim detection</p>
           </div>
         </div>
 
-        {/* Mic Toggle Button */}
-        <div className="flex items-center gap-2">
+        {/* Mic Toggle */}
+        <div>
           {!isDemoMode && (
             <button
               onClick={isMicActive ? onStopMic : onStartMic}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer ${
                 isMicActive
-                  ? 'bg-rose-950/80 text-rose-300 border-rose-800 live-pulse shadow-md shadow-rose-950/50'
-                  : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border-slate-700'
+                  ? 'bg-rose-950/20 text-rose-400 border-rose-900/30'
+                  : 'bg-slate-900 text-slate-400 hover:text-slate-200 border-slate-800'
               }`}
             >
-              {isMicActive ? <Mic className="w-3.5 h-3.5 animate-bounce" /> : <MicOff className="w-3.5 h-3.5" />}
-              {isMicActive ? 'Mic Active' : 'Enable Mic'}
+              {isMicActive ? (
+                <>
+                  <Mic className="w-3.5 h-3.5 text-rose-400 animate-bounce" />
+                  <span>Mic Active</span>
+                </>
+              ) : (
+                <>
+                  <MicOff className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Enable Mic</span>
+                </>
+              )}
             </button>
           )}
         </div>
       </div>
 
-      {/* Stream Area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-280px)] min-h-[380px]">
+      {/* Transcript Feed Stream */}
+      <div 
+        ref={scrollRef} 
+        className="flex-1 overflow-y-auto p-5 space-y-4 max-h-[calc(100vh-320px)] min-h-[360px]"
+      >
         {transcript.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-500 my-auto">
-            <div className="p-4 rounded-full bg-slate-900/80 border border-slate-800 mb-3">
-              <Sparkles className="w-8 h-8 text-cyan-500/60 animate-pulse" />
+            <div className="p-3.5 rounded-full bg-slate-950/40 border border-slate-900 mb-3 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-cyan-500/20 animate-pulse" />
             </div>
-            <p className="font-medium text-sm text-slate-300">Conversation Stream Ready</p>
-            <p className="text-xs text-slate-500 max-w-xs mt-1">
-              Start session or enable Demo Mode to stream live speech and extract factual claims in real-time.
+            <p className="font-bold text-xs uppercase tracking-widest text-slate-400">Stream Ready</p>
+            <p className="text-[10px] text-slate-500 max-w-xs mt-1 font-sans">
+              Start a live stream session or toggle Demo mode to capture assertions.
             </p>
           </div>
         ) : (
           transcript.map((item) => (
             <div
               key={item.id}
-              className={`group transition-all duration-300 p-4 rounded-xl border ${
-                item.hasClaim
-                  ? 'bg-slate-900/90 border-cyan-500/40 shadow-lg shadow-cyan-950/20'
-                  : 'bg-slate-900/40 border-slate-800/60 hover:border-slate-700/80'
-              }`}
+              className="p-4 rounded-xl bg-slate-950/20 border border-slate-900/60 hover:border-slate-900 transition-all"
             >
-              {/* Speaker & Timestamp */}
+              {/* Speaker Metadata Header */}
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-cyan-300 border border-slate-700">
+                  <span className="text-[10px] font-bold text-slate-300 font-sans tracking-wide">
                     {item.speaker}
                   </span>
-                  <span className="text-[11px] font-mono text-slate-500">{item.timestamp}</span>
+                  <span className="text-[9px] font-mono text-slate-600">{item.timestamp}</span>
                 </div>
 
                 {item.hasClaim && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 animate-pulse">
-                    <Sparkles className="w-3 h-3" /> CLAIM DETECTED
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[8px] font-bold bg-cyan-950/40 text-cyan-400 border border-cyan-800/20 uppercase tracking-widest">
+                    <Sparkles className="w-2.5 h-2.5 text-cyan-400" /> claim detected
                   </span>
                 )}
               </div>
 
-              {/* Speech Text */}
-              <p className="text-sm text-slate-200 leading-relaxed font-sans">
+              {/* Transcription Content text */}
+              <p className="text-xs text-slate-300 leading-relaxed font-sans font-medium">
                 {item.highlightedText ? (
                   <span>
                     {item.text.split(item.highlightedText)[0]}
-                    <mark className="bg-cyan-950/80 text-cyan-200 px-1 py-0.5 rounded border border-cyan-800/60 font-medium">
+                    <mark className="bg-cyan-950/40 text-cyan-300 px-1 py-0.5 rounded border border-cyan-850/30 font-bold shadow-[0_0_10px_rgba(6,182,212,0.1)] claim-highlight-active font-sans">
                       {item.highlightedText}
                     </mark>
                     {item.text.split(item.highlightedText)[1]}
@@ -128,20 +136,23 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
         )}
       </div>
 
-      {/* Manual Input Fallback Footer */}
-      <div className="p-3 border-t border-slate-800/80 bg-slate-950/80">
+      {/* Manual Verification Prompt Input */}
+      <div className="p-3.5 border-t border-slate-900 bg-slate-950/40">
         <form onSubmit={handleSubmitManual} className="flex items-center gap-2">
-          <input
-            type="text"
-            value={manualInput}
-            onChange={(e) => setManualInput(e.target.value)}
-            placeholder="Type or paste a claim to verify manually..."
-            className="flex-1 bg-slate-900/90 border border-slate-800 focus:border-cyan-500 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition-all"
-          />
+          <div className="relative flex-1 flex items-center">
+            <Terminal className="w-3.5 h-3.5 text-slate-500 absolute left-3" />
+            <input
+              type="text"
+              value={manualInput}
+              onChange={(e) => setManualInput(e.target.value)}
+              placeholder="Submit an assertion to verify manually..."
+              className="w-full bg-[#080c14] border border-slate-900 focus:border-slate-800 rounded-lg pl-9 pr-3.5 py-2 text-xs font-sans text-slate-200 placeholder-slate-600 focus:outline-none transition-all"
+            />
+          </div>
           <button
             type="submit"
             disabled={!manualInput.trim()}
-            className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium text-xs flex items-center gap-1.5 transition-all shadow-md shadow-cyan-950/50"
+            className="px-3.5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 disabled:cursor-not-allowed text-slate-950 font-bold text-xs tracking-wide flex items-center gap-1.5 transition-all shadow-md shadow-cyan-950/20 cursor-pointer"
           >
             <Send className="w-3.5 h-3.5" /> Verify
           </button>
