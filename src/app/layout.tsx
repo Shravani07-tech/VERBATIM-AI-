@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "VerbatimAI — Real-Time Truth Intelligence Copilot",
   description: "Real-time AI fact-checking and bias-detection copilot that listens to live conversations, extracts factual claims, verifies them against live web sources, and displays an instant trust feed.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.svg",
   },
 };
 

@@ -9,10 +9,11 @@ import { ClaimCard } from './ClaimCard';
 interface TrustFeedProps {
   claims: Claim[];
   stats: SessionStats;
+  selectedClaim: Claim | null;
   onSelectClaim: (claim: Claim) => void;
 }
 
-export const TrustFeed: React.FC<TrustFeedProps> = ({ claims, stats, onSelectClaim }) => {
+export const TrustFeed: React.FC<TrustFeedProps> = ({ claims, stats, selectedClaim, onSelectClaim }) => {
   const [filter, setFilter] = useState<'ALL' | 'VERIFIED' | 'FLAGGED' | 'FALSE' | 'OPINION'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [ticker, setTicker] = useState(0);
@@ -169,7 +170,12 @@ export const TrustFeed: React.FC<TrustFeedProps> = ({ claims, stats, onSelectCla
             </div>
           ) : (
             filteredClaims.map((claim) => (
-              <ClaimCard key={claim.id} claim={claim} onSelectClaim={onSelectClaim} />
+              <ClaimCard 
+                key={claim.id} 
+                claim={claim} 
+                isSelected={selectedClaim?.id === claim.id}
+                onSelectClaim={onSelectClaim} 
+              />
             ))
           )}
         </div>

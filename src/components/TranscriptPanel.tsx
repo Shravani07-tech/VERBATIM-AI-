@@ -48,7 +48,17 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
             <Radio className={`w-4 h-4 ${isLive ? 'animate-pulse' : ''}`} />
           </div>
           <div>
-            <h3 className="font-bold text-sm text-slate-200 font-sans">Live Conversation</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-sm text-slate-200 font-sans">Live Conversation</h3>
+              {isLive && (
+                <div className="flex items-end gap-[2px] h-3 px-1 mb-0.5" title="Signal feed active">
+                  <div className="w-[2px] bg-cyan-400/90 rounded-sm animate-wave-bar-1" />
+                  <div className="w-[2px] bg-cyan-400/90 rounded-sm animate-wave-bar-2" />
+                  <div className="w-[2px] bg-cyan-400/90 rounded-sm animate-wave-bar-3" />
+                  <div className="w-[2px] bg-cyan-400/90 rounded-sm animate-wave-bar-4" />
+                </div>
+              )}
+            </div>
             <p className="text-[10px] text-slate-500 font-medium">Real-time transcript and claim detection</p>
           </div>
         </div>

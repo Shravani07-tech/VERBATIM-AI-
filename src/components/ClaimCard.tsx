@@ -7,9 +7,10 @@ import { Claim, ClaimVerdict } from '@/types';
 interface ClaimCardProps {
   claim: Claim;
   onSelectClaim: (claim: Claim) => void;
+  isSelected?: boolean;
 }
 
-export const ClaimCard: React.FC<ClaimCardProps> = ({ claim, onSelectClaim }) => {
+export const ClaimCard: React.FC<ClaimCardProps> = ({ claim, onSelectClaim, isSelected }) => {
   const getVerdictStyle = (verdict: ClaimVerdict) => {
     switch (verdict) {
       case 'VERIFIED':
@@ -57,13 +58,17 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({ claim, onSelectClaim }) =>
   return (
     <div
       onClick={() => onSelectClaim(claim)}
-      className="group saas-card rounded-xl p-4.5 border border-slate-900/65 cursor-pointer flex flex-col justify-between relative overflow-hidden"
+      className={`group saas-card rounded-xl p-4.5 border cursor-pointer flex flex-col justify-between relative overflow-hidden tilt-card ${
+        isSelected 
+          ? 'tilt-card-active border-cyan-500/45 bg-[#0e1626]/85' 
+          : 'border-slate-900/65 bg-[#0a101c]/45'
+      }`}
     >
       {/* Absolute corner telemetry ticks */}
-      <div className="absolute top-2 left-2 w-1.5 h-1.5 border-t border-l border-slate-700/35 pointer-events-none group-hover:border-cyan-500/40 transition-colors"></div>
-      <div className="absolute top-2 right-2 w-1.5 h-1.5 border-t border-r border-slate-700/35 pointer-events-none group-hover:border-cyan-500/40 transition-colors"></div>
-      <div className="absolute bottom-2 left-2 w-1.5 h-1.5 border-b border-l border-slate-700/35 pointer-events-none group-hover:border-cyan-500/40 transition-colors"></div>
-      <div className="absolute bottom-2 right-2 w-1.5 h-1.5 border-b border-r border-slate-700/35 pointer-events-none group-hover:border-cyan-500/40 transition-colors"></div>
+      <div className={`absolute top-2 left-2 w-1.5 h-1.5 border-t border-l pointer-events-none transition-colors ${isSelected ? 'border-cyan-400' : 'border-slate-700/35 group-hover:border-cyan-500/40'}`}></div>
+      <div className={`absolute top-2 right-2 w-1.5 h-1.5 border-t border-r pointer-events-none transition-colors ${isSelected ? 'border-cyan-400' : 'border-slate-700/35 group-hover:border-cyan-500/40'}`}></div>
+      <div className={`absolute bottom-2 left-2 w-1.5 h-1.5 border-b border-l pointer-events-none transition-colors ${isSelected ? 'border-cyan-400' : 'border-slate-700/35 group-hover:border-cyan-500/40'}`}></div>
+      <div className={`absolute bottom-2 right-2 w-1.5 h-1.5 border-b border-r pointer-events-none transition-colors ${isSelected ? 'border-cyan-400' : 'border-slate-700/35 group-hover:border-cyan-500/40'}`}></div>
 
       {/* Holographic scanner line overlay on hover */}
       <div className="absolute inset-0 overflow-hidden rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">

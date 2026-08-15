@@ -6,6 +6,15 @@ import { Header } from '@/components/Header';
 import { TranscriptPanel } from '@/components/TranscriptPanel';
 import { TrustFeed } from '@/components/TrustFeed';
 import { EvidenceAssistant } from '@/components/EvidenceAssistant';
+import { 
+  ClaimsCatalogView, 
+  EvidenceNodesView, 
+  BiasAnalysisView, 
+  HistoryArchiveView, 
+  SessionReportsView, 
+  SettingsView, 
+  HelpSupportView 
+} from '@/components/NavigationViews';
 import { Claim, TranscriptSegment, SessionStats, HealthResponse, ClaimVerdict } from '@/types';
 import { DEMO_SEQUENCE } from '@/lib/demo-data';
 
@@ -22,6 +31,7 @@ export default function Dashboard() {
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [isMicActive, setIsMicActive] = useState(false);
   const [sessionRestoredNotice, setSessionRestoredNotice] = useState(false);
+  const [currentView, setCurrentView] = useState('dashboard');
 
   const demoStepRef = useRef(0);
   const recognitionRef = useRef<any>(null);
@@ -57,6 +67,35 @@ export default function Dashboard() {
       }
     }
   }, []);
+
+  // Synchronize routing workspace state with browser Back/Forward navigation
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const view = params.get('view');
+      if (view) {
+        setCurrentView(view);
+      }
+
+      const handlePopState = () => {
+        const currentParams = new URLSearchParams(window.location.search);
+        const currentViewParam = currentParams.get('view') || 'dashboard';
+        setCurrentView(currentViewParam);
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, []);
+
+  const handleViewChange = (view: string) => {
+    setCurrentView(view);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', view);
+      window.history.pushState({}, '', url.pathname + url.search);
+    }
+  };
 
   // Save session to browser localStorage on state changes
   useEffect(() => {
@@ -515,7 +554,7 @@ export default function Dashboard() {
   return (
     <div className="flex h-screen overflow-hidden bg-[#080c14] text-slate-100 font-sans selection:bg-cyan-500/20 selection:text-cyan-300">
       {/* Left Sidebar Navigation */}
-      <Sidebar />
+      <Sidebar currentView={currentView} onViewChange={handleViewChange} />
 
       {/* Main Workspace Frame */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -535,88 +574,198 @@ export default function Dashboard() {
 
         {/* Scrollable Dashboard Workspace Content Area */}
         <main className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
-          {/* Main Greeting / Title Hero Section */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold text-slate-100 font-sans">Truth Intelligence</h2>
-              <p className="text-xs text-slate-500 mt-1">Monitor factual assertions, citations, and conversation integrity in real time.</p>
-            </div>
-          </div>
-
-          {/* Elegant SaaS KPI Cards Row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* SESSION TRUST */}
-            <div className="saas-card rounded-xl p-4.5 flex flex-col justify-between min-h-[90px] shadow-sm relative overflow-hidden">
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Session Trust</span>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="text-2xl font-black text-slate-200 font-sans">{stats.sessionTrustScore}%</span>
-                <span className={`text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded font-mono ${
-                  stats.sessionTrustScore >= 80 ? 'bg-emerald-500/10 text-emerald-400' : stats.sessionTrustScore >= 60 ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
-                }`}>
-                  {stats.sessionTrustScore >= 80 ? 'Stable' : stats.sessionTrustScore >= 60 ? 'Warning' : 'Critical'}
-                </span>
+          {currentView === 'dashboard' && (
+            <>
+              {/* Main Greeting / Title Hero Section */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fadeIn">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-100 font-sans">Truth Intelligence</h2>
+                  <p className="text-xs text-slate-500 mt-1">Monitor factual assertions, citations, and conversation integrity in real time.</p>
+                </div>
               </div>
-            </div>
 
-            {/* CLAIMS PROCESSED */}
-            <div className="saas-card rounded-xl p-4.5 flex flex-col justify-between min-h-[90px] shadow-sm relative overflow-hidden">
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Claims Analyzed</span>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="text-2xl font-black text-slate-200 font-sans">{stats.totalClaims}</span>
-                <span className="text-[8px] font-bold text-slate-400 bg-slate-900 border border-slate-800/80 px-1.5 py-0.5 rounded font-mono uppercase tracking-widest">
-                  Total
-                </span>
+              {/* Elegant SaaS KPI Cards Row */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fadeIn">
+                {/* SESSION TRUST */}
+                <div className="saas-card rounded-xl p-4.5 flex flex-col justify-between min-h-[90px] shadow-sm relative overflow-hidden">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Session Trust</span>
+                  <div className="flex items-baseline justify-between mt-1">
+                    <span className="text-2xl font-black text-slate-200 font-sans">{stats.sessionTrustScore}%</span>
+                    <span className={`text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded font-mono ${
+                      stats.sessionTrustScore >= 80 ? 'bg-emerald-500/10 text-emerald-400' : stats.sessionTrustScore >= 60 ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
+                    }`}>
+                      {stats.sessionTrustScore >= 80 ? 'Stable' : stats.sessionTrustScore >= 60 ? 'Warning' : 'Critical'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* CLAIMS PROCESSED */}
+                <div className="saas-card rounded-xl p-4.5 flex flex-col justify-between min-h-[90px] shadow-sm relative overflow-hidden">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Claims Analyzed</span>
+                  <div className="flex items-baseline justify-between mt-1">
+                    <span className="text-2xl font-black text-slate-200 font-sans">{stats.totalClaims}</span>
+                    <span className="text-[8px] font-bold text-slate-400 bg-slate-900 border border-slate-800/80 px-1.5 py-0.5 rounded font-mono uppercase tracking-widest">
+                      Total
+                    </span>
+                  </div>
+                </div>
+
+                {/* VERIFIED CLAIMS */}
+                <div className="saas-card rounded-xl p-4.5 flex flex-col justify-between min-h-[90px] shadow-sm relative overflow-hidden">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Verified Claims</span>
+                  <div className="flex items-baseline justify-between mt-1">
+                    <span className="text-2xl font-black text-cyan-400 font-sans">{stats.verifiedCount}</span>
+                    <span className="text-[8px] font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded font-mono uppercase tracking-widest">
+                      Verified
+                    </span>
+                  </div>
+                </div>
+
+                {/* FLAGGED SKEWS */}
+                <div className="saas-card rounded-xl p-4.5 flex flex-col justify-between min-h-[90px] shadow-sm relative overflow-hidden">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Flagged Skews</span>
+                  <div className="flex items-baseline justify-between mt-1">
+                    <span className="text-2xl font-black text-rose-400 font-sans">{stats.misleadingCount + stats.falseCount}</span>
+                    <span className="text-[8px] font-bold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded font-mono uppercase tracking-widest">
+                      Flagged
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* VERIFIED CLAIMS */}
-            <div className="saas-card rounded-xl p-4.5 flex flex-col justify-between min-h-[90px] shadow-sm relative overflow-hidden">
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Verified Claims</span>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="text-2xl font-black text-cyan-400 font-sans">{stats.verifiedCount}</span>
-                <span className="text-[8px] font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded font-mono uppercase tracking-widest">
-                  Verified
-                </span>
+              {/* Main Workspace Split Column Grid Layout */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start animate-fadeIn">
+                {/* Live Conversation Stream (4 cols on xl) */}
+                <section className="xl:col-span-4 h-full">
+                  <TranscriptPanel
+                    transcript={transcript}
+                    isLive={isLive}
+                    isDemoMode={isDemoMode}
+                    onAddTranscriptSegment={handleAddTranscriptSegment}
+                    onStartMic={startMicTranscription}
+                    onStopMic={stopMicTranscription}
+                    isMicActive={isMicActive}
+                  />
+                </section>
+
+                {/* Live Trust Feed (4 cols on xl) */}
+                <section className="xl:col-span-4 h-full">
+                  <TrustFeed claims={claims} stats={stats} selectedClaim={selectedClaim} onSelectClaim={setSelectedClaim} />
+                </section>
+
+                {/* Evidence Assistant Panel (4 cols on xl) */}
+                <section className="xl:col-span-4 h-full">
+                  <EvidenceAssistant claim={selectedClaim} onClearSelection={() => setSelectedClaim(null)} />
+                </section>
               </div>
+            </>
+          )}
+
+          {currentView === 'live-session' && (
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start animate-fadeIn">
+              <section className="xl:col-span-8 h-full">
+                <TranscriptPanel
+                  transcript={transcript}
+                  isLive={isLive}
+                  isDemoMode={isDemoMode}
+                  onAddTranscriptSegment={handleAddTranscriptSegment}
+                  onStartMic={startMicTranscription}
+                  onStopMic={stopMicTranscription}
+                  isMicActive={isMicActive}
+                />
+              </section>
+              <section className="xl:col-span-4 h-full space-y-6">
+                <div className="saas-card rounded-xl p-5 border border-slate-900/60 bg-[#0a101c]/45">
+                  <span className="text-[9px] uppercase font-mono tracking-widest text-slate-550 font-bold">Live Trust Index</span>
+                  <div className="flex justify-center py-6">
+                    <div className="w-48 h-48">
+                      <svg className="w-full h-full" viewBox="0 0 200 200">
+                        <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(6, 182, 212, 0.05)" strokeWidth="1" />
+                        <circle cx="100" cy="100" r="75" fill="none" stroke="rgba(6, 182, 212, 0.12)" strokeWidth="1.5" strokeDasharray="6 8" className="animate-spin-ring-fast origin-center" />
+                        <circle cx="100" cy="100" r="65" fill="none" stroke="rgba(6, 182, 212, 0.08)" strokeWidth="1" strokeDasharray="30 4" className="animate-spin-ring-reverse-medium origin-center" />
+                        <circle cx="100" cy="100" r="58" fill="none" stroke="rgba(6, 182, 212, 0.04)" strokeWidth="1" />
+                        <text x="100" y="98" textAnchor="middle" className="text-3xl font-black fill-slate-100 font-sans">{stats.sessionTrustScore}%</text>
+                        <text x="100" y="118" textAnchor="middle" className="text-[8px] font-bold fill-cyan-400 font-mono tracking-widest uppercase">TRUST INDEX</text>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="saas-card rounded-xl p-5 border border-slate-900/60 bg-[#0a101c]/45">
+                  <span className="text-[9px] uppercase font-mono tracking-widest text-slate-550 font-bold">Session Diagnostics</span>
+                  <div className="space-y-3 mt-4 text-xs font-sans">
+                    <div className="flex justify-between border-b border-slate-900/40 pb-2">
+                      <span className="text-slate-500">Duration Elapsed</span>
+                      <span className="font-mono text-slate-200 font-bold">
+                        {Math.floor(durationSeconds / 60).toString().padStart(2, '0')}:{(durationSeconds % 60).toString().padStart(2, '0')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-900/40 pb-2">
+                      <span className="text-slate-500">Assertions Captured</span>
+                      <span className="font-mono text-slate-200 font-bold">{claims.length} assertions</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Status</span>
+                      <span className={`font-mono font-bold ${isLive ? 'text-cyan-400' : 'text-slate-655'}`}>
+                        {isLive ? (isPaused ? 'PAUSED' : 'ONLINE') : 'STANDBY'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
+          )}
 
-            {/* FLAGGED SKEWS */}
-            <div className="saas-card rounded-xl p-4.5 flex flex-col justify-between min-h-[90px] shadow-sm relative overflow-hidden">
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Flagged Skews</span>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="text-2xl font-black text-rose-400 font-sans">{stats.misleadingCount + stats.falseCount}</span>
-                <span className="text-[8px] font-bold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded font-mono uppercase tracking-widest">
-                  Flagged
-                </span>
-              </div>
+          {currentView === 'trust-feed' && (
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start animate-fadeIn">
+              <section className="xl:col-span-8 h-full">
+                <TrustFeed 
+                  claims={claims} 
+                  stats={stats} 
+                  selectedClaim={selectedClaim} 
+                  onSelectClaim={setSelectedClaim} 
+                />
+              </section>
+              <section className="xl:col-span-4 h-full">
+                <EvidenceAssistant claim={selectedClaim} onClearSelection={() => setSelectedClaim(null)} />
+              </section>
             </div>
-          </div>
+          )}
 
-          {/* Main Workspace Split Column Grid Layout */}
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-            {/* Live Conversation Stream (4 cols on xl) */}
-            <section className="xl:col-span-4 h-full">
-              <TranscriptPanel
-                transcript={transcript}
-                isLive={isLive}
-                isDemoMode={isDemoMode}
-                onAddTranscriptSegment={handleAddTranscriptSegment}
-                onStartMic={startMicTranscription}
-                onStopMic={stopMicTranscription}
-                isMicActive={isMicActive}
-              />
-            </section>
+          {currentView === 'claims-catalog' && (
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start animate-fadeIn">
+              <section className="xl:col-span-8 h-full">
+                <ClaimsCatalogView claims={claims} onSelectClaim={setSelectedClaim} />
+              </section>
+              <section className="xl:col-span-4 h-full">
+                <EvidenceAssistant claim={selectedClaim} onClearSelection={() => setSelectedClaim(null)} />
+              </section>
+            </div>
+          )}
 
-            {/* Live Trust Feed (4 cols on xl) */}
-            <section className="xl:col-span-4 h-full">
-              <TrustFeed claims={claims} stats={stats} onSelectClaim={setSelectedClaim} />
-            </section>
+          {currentView === 'evidence-nodes' && (
+            <EvidenceNodesView claims={claims} />
+          )}
 
-            {/* Evidence Assistant Panel (4 cols on xl) */}
-            <section className="xl:col-span-4 h-full">
-              <EvidenceAssistant claim={selectedClaim} onClearSelection={() => setSelectedClaim(null)} />
-            </section>
-          </div>
+          {currentView === 'bias-analysis' && (
+            <BiasAnalysisView claims={claims} stats={stats} />
+          )}
+
+          {currentView === 'history-archive' && (
+            <HistoryArchiveView />
+          )}
+
+          {currentView === 'session-reports' && (
+            <SessionReportsView claims={claims} stats={stats} durationSeconds={durationSeconds} />
+          )}
+
+          {currentView === 'settings' && (
+            <SettingsView liveVerificationAvailable={liveVerificationAvailable} isDemoMode={isDemoMode} />
+          )}
+
+          {currentView === 'help-support' && (
+            <HelpSupportView />
+          )}
         </main>
       </div>
 
