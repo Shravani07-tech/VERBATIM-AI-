@@ -21,9 +21,62 @@ export default function Dashboard() {
 
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [isMicActive, setIsMicActive] = useState(false);
+  const [sessionRestoredNotice, setSessionRestoredNotice] = useState(false);
 
   const demoStepRef = useRef(0);
   const recognitionRef = useRef<any>(null);
+
+  // Load session from browser localStorage on client mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('verbatimai_session_v1');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed.transcript) && Array.isArray(parsed.claims)) {
+            setTranscript(parsed.transcript);
+            setClaims(parsed.claims);
+            setSelectedClaim(parsed.selectedClaim || null);
+            setDurationSeconds(parsed.durationSeconds || 0);
+            setIsLive(parsed.isLive || false);
+            setIsPaused(parsed.isPaused || false);
+            setIsDemoMode(parsed.isDemoMode !== undefined ? parsed.isDemoMode : true);
+            // Synchronize demo sequence offset to prevent duplicate claims
+            demoStepRef.current = parsed.claims.length;
+
+            setSessionRestoredNotice(true);
+            const timer = setTimeout(() => setSessionRestoredNotice(false), 3000);
+            return () => clearTimeout(timer);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to restore telemetry cache from localStorage:', e);
+        try {
+          localStorage.removeItem('verbatimai_session_v1');
+        } catch {}
+      }
+    }
+  }, []);
+
+  // Save session to browser localStorage on state changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const sessionData = {
+          transcript,
+          claims,
+          selectedClaim,
+          durationSeconds,
+          isLive,
+          isPaused,
+          isDemoMode,
+        };
+        localStorage.setItem('verbatimai_session_v1', JSON.stringify(sessionData));
+      } catch (e) {
+        console.error('Failed to cache telemetry session in localStorage:', e);
+      }
+    }
+  }, [transcript, claims, selectedClaim, durationSeconds, isLive, isPaused, isDemoMode]);
 
   // 1. Check API Health on Mount
   useEffect(() => {
@@ -443,6 +496,11 @@ export default function Dashboard() {
     setDurationSeconds(0);
     demoStepRef.current = 0;
     stopMicTranscription();
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('verbatimai_session_v1');
+      } catch {}
+    }
   };
 
   const handleToggleDemoMode = () => {
@@ -561,6 +619,14 @@ export default function Dashboard() {
           </div>
         </main>
       </div>
+
+      {/* Telemetry Restored Notification */}
+      {sessionRestoredNotice && (
+        <div className="fixed bottom-6 right-6 bg-slate-950/90 border border-cyan-500/20 text-cyan-400 text-[10px] font-mono font-bold tracking-widest px-3 py-1.5 rounded-md shadow-[0_0_12px_rgba(6,182,212,0.15)] flex items-center gap-1.5 z-50 animate-fadeIn uppercase select-none">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+          <span>Telemetry Session Restored</span>
+        </div>
+      )}
     </div>
   );
 }
