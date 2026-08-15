@@ -70,7 +70,7 @@ During live lectures, business meetings, panel discussions, interviews, and publ
 - **Live Conversation Stream**: Speaker tags, timestamps, text stream, and pulsing `CLAIM DETECTED` highlights.
 - **Dynamic Session Trust Meter**: Circular radial visualization calculating real-time credibility (0-100%).
 - **Interactive Trust Feed**: Filterable claim cards showing verdict pills, confidence gauges, rationale explanations, bias signals, and cited evidence links.
-- **Claim Intelligence Detail Modal**: Deep dive report detailing claim statement, speaker context, detailed AI rationale, supporting evidence snippets, and search queries.
+- **Evidence Assistant Panel**: Deep dive panel detailing claim statement, speaker context, detailed AI rationale, supporting evidence snippets, and search queries.
 - **Rhetorical Bias Signals**: Identifies extreme framing, false certainty, and unsupported generalizations.
 - **Demo Mode**: Instant 2-minute pre-scripted demonstration flow running completely client-side without external dependencies.
 - **Secure Health Endpoint**: `GET /api/health` exposes system operational status without exposing secret environment keys.
@@ -132,7 +132,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 2. Click the **Demo Mode** toggle button in the top header.
 3. The dashboard will automatically stream pre-scripted live conversation text.
 4. Watch claims get extracted, verified, classified, and cited in real time.
-5. Click any claim card to open the **Claim Intelligence Analysis Modal**.
+5. Click any claim card to load its details into the **Evidence Assistant Panel**.
 
 ---
 

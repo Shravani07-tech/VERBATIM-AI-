@@ -58,9 +58,9 @@ Web Evidence Sources: ${JSON.stringify(sources, null, 2)}`;
       if (sources.length > 0) {
         return NextResponse.json({
           claim,
-          verdict: 'VERIFIED' as ClaimVerdict,
-          confidence: 85,
-          explanation: 'Verified against live web search results.',
+          verdict: 'UNVERIFIED' as ClaimVerdict,
+          confidence: 50,
+          explanation: 'Unable to conclusively verify claim. Retrieved evidence exists but evaluation processing failed.',
           category: 'General',
           sources,
           isDemo: false,
@@ -70,9 +70,9 @@ Web Evidence Sources: ${JSON.stringify(sources, null, 2)}`;
 
     // Graceful Fallback / Simulated verification if live keys are not configured
     const lower = claim.toLowerCase();
-    let verdict: ClaimVerdict = 'VERIFIED';
-    let confidence = 88;
-    let explanation = 'Verified using analytical baseline knowledge and verified dataset patterns.';
+    let verdict: ClaimVerdict = 'UNVERIFIED';
+    let confidence = 50;
+    let explanation = 'Claim evaluation pending. Factual assertion has been logged but verification evidence is currently inconclusive.';
     let category: 'Science' | 'Technology' | 'Statistics' | 'History' | 'Opinion' | 'General' = 'General';
 
     if (lower.includes('90%') || lower.includes('fail') || lower.includes('1990')) {
@@ -93,6 +93,16 @@ Web Evidence Sources: ${JSON.stringify(sources, null, 2)}`;
       confidence = 95;
       explanation = 'Confirmed by global climate observation synthesis reports.';
       category = 'Science';
+    } else if (lower.includes('earth') || lower.includes('third planet') || lower.includes('sun')) {
+      verdict = 'VERIFIED';
+      confidence = 98;
+      explanation = 'Astrophysical consensus confirms the Earth is the third planet from the Sun.';
+      category = 'Science';
+    } else if (lower.includes('great wall') || lower.includes('moon') || lower.includes('naked eye')) {
+      verdict = 'FALSE';
+      confidence = 96;
+      explanation = 'NASA astronaut observations confirm that the Great Wall of China is not visible from orbital altitudes with the naked eye.';
+      category = 'General';
     }
 
     return NextResponse.json({
