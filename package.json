@@ -2,6 +2,12 @@
   "name": "verbatim-ai",
   "version": "0.1.0",
   "private": true,
+  "contributors": [
+    {
+      "name": "Surudmahajan",
+      "email": "surudmahajan3@gmail.com"
+    }
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -156,3 +156,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 2. **Multilingual Fact-Checking**: Support for real-time translation and verification in 20+ languages.
 3. **Persistent Session Analytics**: Export session reports as PDF / Markdown intelligence briefs.
 4. **Browser Extension**: Fact-checking overlay for YouTube live streams, webinars, and news broadcasts.
+
+---
+
+## 👥 Contributors
+
+- **Surudmahajan** - [surudmahajan3@gmail.com](mailto:surudmahajan3@gmail.com)
